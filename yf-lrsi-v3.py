@@ -16,7 +16,7 @@ for tkrid in tkrid_lst['SYMBOL']:
 
     data15 = tkr.history(period="5d", interval="15m")
     data15 = data15.reset_index()
-
+    
     data15['Close_HA'] = (
         data15['Open'] + data15['High'] + data15['Low'] + data15['Close']) / 4
     data15['Open_HA'] = (data15['Open'].shift() + data15['Close'].shift()) / 2
@@ -66,7 +66,7 @@ for tkrid in tkrid_lst['SYMBOL']:
             -1 if tempA == 0 else tempA) == -1) else (
                 data15.loc[i, 'CU'] / (-1 if (tempA == 0) else tempA))
     data15['lrsi'] = pd.Series(data15['rsi']).ewm(span=2).mean()
-
+    
     if (data15.loc[data15_len - 2, 'rsi'] < os
             and data15.loc[data15_len - 1, 'rsi'] > os):
         #print("Buy | ", tkrid  )
@@ -75,4 +75,5 @@ for tkrid in tkrid_lst['SYMBOL']:
             and data15.loc[data15_len - 1, 'rsi'] < ob):
         #print("Sell | "  , tkrid  )
         print("Sell | ", tkrid, " | ", data15.loc[data15_len - 1, 'Datetime'])
+    print(data15.tail(2))
 print("Stop - ", datetime.now())
