@@ -7,7 +7,7 @@ from datetime import datetime
 ob = 0.80
 os = 0.20
 g = 0.75
-tkrid_lst = pd.read_csv('/projects/yf/yf-symbol-full.csv')
+tkrid_lst = pd.read_csv('yf-symbol-full.csv')
 print("Start - ", datetime.now())
 
 for tkrid in tkrid_lst['SYMBOL']:
