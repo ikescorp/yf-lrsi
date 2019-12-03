@@ -75,5 +75,5 @@ for tkrid in tkrid_lst['SYMBOL']:
             and data15.loc[data15_len - 1, 'rsi'] < ob):
         #print("Sell | "  , tkrid  )
         print("Sell | ", tkrid, " | ", data15.loc[data15_len - 1, 'Datetime'])
-    print(data15.tail(2))
+    #print(data15.tail(2))
 print("Stop - ", datetime.now())
