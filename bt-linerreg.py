@@ -21,7 +21,7 @@ class TestStrategy(bt.Strategy):
         self.sma = bt.indicators.SimpleMovingAverage(self.datas[0], period=15)
         self.rsi = bt.indicators.RelativeStrengthIndex()
         self.lrsi = bt.indicators.LaguerreRSI(self.dataclose,gamma=0.75 )
-        
+
     def notify_order(self, order):
         if order.status in [order.Submitted, order.Accepted]:
             return
@@ -88,8 +88,9 @@ if __name__ == '__main__':
     data = bt.feeds.YahooFinanceData(
         dataname='IBULHSGFIN.NS'
         , name = 'IBULHSGFIN.NS'
-        , fromdate = datetime.datetime(2019,1,1)
-        , todate = datetime.datetime(2019,12,4)
+        , fromdate = datetime.datetime(2019,12,1)
+        , todate = datetime.datetime(2019,12,5)
+        , period = '15m'
         , reverse = False
         )
     cerebro.adddata(data)

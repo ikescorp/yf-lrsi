@@ -1,12 +1,16 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import datetime
-import os.path
-import sys
-import backtrader as bt
-import pandas as pd
+import datetime  # For datetime objects
+import os.path  # To manage paths
+import sys  # To find out the script name (in argv[0])
+import yfinance as yf
 
+# Import the backtrader platform
+import backtrader as bt
+
+
+# Create a Stratey
 class TestStrategy(bt.Strategy):
     def log(self, txt, dt=None):
         dt = dt or self.datas[0].datetime.date(0)
@@ -18,10 +22,11 @@ class TestStrategy(bt.Strategy):
         self.buyprice = None
         self.buycomm = None
 
-        self.sma = bt.indicators.SimpleMovingAverage(self.datas[0], period=15)
+        self.sma = bt.indicators.SimpleMovingAverage(self.datas[0], period=9)
         self.rsi = bt.indicators.RelativeStrengthIndex()
-        self.lrsi = bt.indicators.LaguerreRSI(self.dataclose,gamma=0.75 )
-        
+        rsi = self.sma
+        self.lrsi = bt.indicators.LaguerreRSI(rsi,gamma=0.75 )
+
     def notify_order(self, order):
         if order.status in [order.Submitted, order.Accepted]:
             return
@@ -58,8 +63,8 @@ class TestStrategy(bt.Strategy):
                  (trade.pnl, trade.pnlcomm))
 
     def next(self):
-        # self.log('Close, %.2f' % self.dataclose[0])
-        # print('lrsi:', self.lrsi[0])
+        self.log('RSI, %.2f' % self.rsi[0])
+        print('lrsi: %.2f' % self.lrsi[0])
         if self.order:
             return
 
@@ -76,25 +81,47 @@ class TestStrategy(bt.Strategy):
 
 
 if __name__ == '__main__':
+    # Create a cerebro entity
     cerebro = bt.Cerebro()
+
+    # Add a strategy
     cerebro.addstrategy(TestStrategy)
-    cerebro.broker.setcommission(commission=0.001)
 
+    # Datas are in a subfolder of the samples. Need to find where the script is
+    # because it could have been called from anywhere
+    modpath = os.path.dirname(os.path.abspath(sys.argv[0]))
+    datapath = os.path.join(modpath, '../../datas/orcl-1995-2014.txt')
+    tkrid = 'IBULHSGFIN.NS'
+    tkr = yf.Ticker(tkrid)
+    data15 = tkr.history(period="5d", interval="15m")
+    data15.to_csv(tkrid)
 
-
-    datapath = 'IBULHSGFIN.NS'
-
-    # Create a Data Feed
-    data = bt.feeds.YahooFinanceData(
-        dataname='IBULHSGFIN.NS'
-        , name = 'IBULHSGFIN.NS'
-        , fromdate = datetime.datetime(2019,1,1)
-        , todate = datetime.datetime(2019,12,4)
-        , reverse = False
+    data = bt.feeds.GenericCSVData(
+        dataname=tkrid,
+        datetime=0,
+        fromdate=datetime.datetime(2019, 11, 20),
+        timeframe=bt.TimeFrame.Minutes,
+        dtformat=('%Y-%m-%d %H:%M:%S+05:30'),
+        open=1,
+        high=2,
+        low=3,
+        close=4,
+        volume=5,
+        openinterest=-1,
+        reverse=True
         )
+
+    # Add the Data Feed to Cerebro
     cerebro.adddata(data)
+
+    # Set our desired cash start
     cerebro.broker.setcash(100000.0)
+
+    # Print out the starting conditions
     print('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
+
+    # Run over everything
     cerebro.run()
+
+    # Print out the final result
     print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
-    cerebro.plot()
