@@ -88,7 +88,7 @@ if __name__ == '__main__':
     data = bt.feeds.YahooFinanceData(
         dataname='IBULHSGFIN.NS'
         , name = 'IBULHSGFIN.NS'
-        , fromdate = datetime.datetime(2019,1,1)
+        , fromdate = datetime.datetime(2014,1,1)
         , todate = datetime.datetime(2019,12,4)
         , reverse = False
         )

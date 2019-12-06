@@ -13,8 +13,8 @@ import backtrader as bt
 # Create a Stratey
 class TestStrategy(bt.Strategy):
     def log(self, txt, dt=None):
-        dt = dt or self.datas[0].datetime.date(0)
-        print('%s, %s' % (dt.isoformat(), txt))
+        dt = dt or self.datas[0].datetime.datetime()
+        print('%s, %s' % (dt.isoformat() , txt))
 
     def __init__(self):
         self.dataclose = self.datas[0].close
@@ -24,8 +24,8 @@ class TestStrategy(bt.Strategy):
 
         self.sma = bt.indicators.SimpleMovingAverage(self.datas[0], period=9)
         self.rsi = bt.indicators.RelativeStrengthIndex()
-        rsi = self.sma
-        self.lrsi = bt.indicators.LaguerreRSI(rsi,gamma=0.75 )
+        #rsi = self.sma
+        self.lrsi = bt.indicators.LaguerreRSI(self.dataclose,gamma=0.75 )
 
     def notify_order(self, order):
         if order.status in [order.Submitted, order.Accepted]:
@@ -63,7 +63,7 @@ class TestStrategy(bt.Strategy):
                  (trade.pnl, trade.pnlcomm))
 
     def next(self):
-        self.log('RSI, %.2f' % self.rsi[0])
+        self.log('Close, %.2f' % self.dataclose[0])
         print('lrsi: %.2f' % self.lrsi[0])
         if self.order:
             return
@@ -93,7 +93,7 @@ if __name__ == '__main__':
     datapath = os.path.join(modpath, '../../datas/orcl-1995-2014.txt')
     tkrid = 'IBULHSGFIN.NS'
     tkr = yf.Ticker(tkrid)
-    data15 = tkr.history(period="5d", interval="15m")
+    data15 = tkr.history(period="60d", interval="15m")
     data15.to_csv(tkrid)
 
     data = bt.feeds.GenericCSVData(
@@ -110,10 +110,10 @@ if __name__ == '__main__':
         openinterest=-1,
         reverse=True
         )
-
+    #data.addfilter(bt.filters.HeikinAshi(data))
     # Add the Data Feed to Cerebro
     cerebro.adddata(data)
-
+    cerebro.datas
     # Set our desired cash start
     cerebro.broker.setcash(100000.0)
 

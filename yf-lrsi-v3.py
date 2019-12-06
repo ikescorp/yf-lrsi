@@ -14,7 +14,7 @@ for tkrid in tkrid_lst['SYMBOL']:
     #print(datetime.now(), " | Processing | " , tkrid)
     tkr = yf.Ticker(tkrid)
 
-    data15 = tkr.history(period="5d", interval="15m")
+    data15 = tkr.history(period="60d", interval="15m")
     data15 = data15.reset_index()
     
     data15['Close_HA'] = (
