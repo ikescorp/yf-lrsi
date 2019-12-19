@@ -10,6 +10,32 @@ from backtrader import Indicator
 import numpy as np
 from sklearn import linear_model
 
+class LinearRegression(Indicator):
+    alias = ('LR',)
+    
+    
+    lines = ('linear_regression','ma')
+    params = (
+        ('len', 300),
+    )
+    iter = 0 
+
+    def changeLen(self,length):
+        self.params.len = length
+        
+    def next(self):
+        if (self.iter > self.params.len):
+            raw_prices = self.data.get(size=self.params.len)
+            prices = np.array(raw_prices).reshape(-1, 1)
+            x_line = np.array([i for i in range(0, self.params.len)]).reshape(-1, 1)
+            # Create linear regression object
+            regr = linear_model.LinearRegression()
+            # Train the model using the training sets
+            regr.fit(x_line, prices)
+            prediction = regr.predict(np.array([self.params.len]).reshape(-1, 1))
+            self.lines.linear_regression[0] = prediction
+        self.iter += 1
+
 class TestStrategy(bt.Strategy):
     def log(self, txt, dt=None):
         dt = dt or self.datas[0].datetime.date(0)
